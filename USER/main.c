@@ -172,21 +172,15 @@ int main(void)
 	USART6_Configuration(115200);
 	USART2_Configuration(9600);
 	USART3_Configuration(9600);
-	TIM4_PWM_Init(1000-1,8-1);	//84M/8=10Mhz?????,????1000,??PWM??? 10M/50000=200hz. //500-10   20hz-1000hz
+
 	CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN2初始化普通模式,波特率500Kbps
-	PID_Init();
-	TIM2_Int_Init(5000-1,840-1);			//Tout=((arr+1)*(psc+1))/Ft us.  50ms	
-	TIM3_CH1_Cap_Init1(5000,84-1); 			//以84/84=1Mhz的频率计数 5ms捕获脉冲
- 	TIM9_CH1_Cap_Init1(5000,84-1); 			//以84/84=1Mhz的频率计数 5ms捕获脉冲
 	IWDG_Init(4,500);
 	
 	can_Sebuf[2]=0x55;//发送继电器板同步信息
 	CanSend();	
 	can_Sebuf[2]=0;
 	
-	MotoStop(5);
-
 	OSInit(&err);		//初始化UCOSIII
 	OS_CRITICAL_ENTER();//进入临界区
 	//创建开始任务
@@ -413,32 +407,6 @@ void Transducer_task(void *p_arg)
 	HmiScreenControlMode = 1;
 	while(1)
 	{	
-		if(((SouZiDongQieHuan==0)&&(All_flag.flag_szd == 0))||(PLC_OutPut[18]==1))
-		{
-			All_flag.stopAsk= 1;
-			All_flag.flag_tz = 1;
-			All_flag.flag_szd = 1;			
-			speek("手动");
-			HmiShouZiDongYinCang = 0;			
-			HmiScreenControlMode = 1;		
-			while(SouZiDongQieHuan==0)
-			{
-				delay(0,0,0,10);
-			}		
-		}
-		else if(((SouZiDongQieHuan==0)&&(All_flag.flag_szd == 1))||(PLC_OutPut[17]==1))
-		{
-			All_flag.stopAsk= 1;
-			All_flag.flag_szd = 0;			
-			speek("自动");
-			HmiShouZiDongYinCang = 0;			
-			speed.jisu_speed = ZiDongJiSu;	//自动一开始没扫到地标之前给个速度		
-			HmiScreenControlMode = 0;		
-			while(SouZiDongQieHuan==0)
-			{
-				delay(0,0,0,10);
-			}
-		}
 		delay(0,0,0,5); //延时5ms
 	}
 }
@@ -448,43 +416,6 @@ void Auto_task(void *p_arg)
 	p_arg = p_arg;
 	while(1)
 	{
-		if(All_flag.flag_szd == 0)
-		{
-			if(All_flag.flag_qd==0)//防止多次软起
-			{
-				if((QD==0)||(HmiQiDong))
-				{	
-					All_flag.jiting_flag = 0;
-					All_flag.flag_tz = 0;
-					All_flag.startAsk = 1;	
-					speek("启动");
-				}
-			}	
-			
-			if(All_flag.flag_qd==1)
-			{
-				if((TZ==0)||(HmiTinZhi))
-				{
-					All_flag.flag_tz = 1;
-					All_flag.stopAsk=1;	
-					speek("停止");					
-				}
-				if((QfangZ==0)&&(dir==0))
-				{
-					All_flag.flag_qd = 0;
-					All_flag.jiting_flag = 1;
-					All_flag.stopAsk=1;
-					All_flag.speek1_flag=1;
-				}
-				if((HfangZ==0)&&(dir==1))
-				{
-					All_flag.flag_qd = 0;
-					All_flag.jiting_flag = 1;
-					All_flag.stopAsk=1;
-					All_flag.speek3_flag=1;					
-				}				
-			}			
-		}
 		delay(0,0,0,5); //延时5ms
 	}
 }
@@ -660,10 +591,6 @@ void PID_task(void *p_arg)
 {
 	while(1)
 	{
-		if((All_flag.flag_qd==1)&&(car_statu == 1)&&(All_flag.flag_szd==0))
-		{	
-			PID_Adjust(speed.jisu_speed,PID.Kp,PID.Ki,PID.Kd);
-		}
 		delay(0,0,0,cy_time);
 	}
 }
@@ -672,18 +599,9 @@ void float_task(void *p_arg)
 {
 	u8 num=0;
 	u16 num_beep=0;
-	UserConfigInit();
 	p_arg = p_arg;
-	All_flag.yuyin_flag=YinLiang;	
-	BEEP=1;
-	delay(0,0,0,500);
-	BEEP=0;
 	while(1)
-	{
-		cy_time = PIDZhouQi;
-		PID.Kp = SPID_P/10.0;
-		PID.Ki = SPID_I/1000.0;
-		PID.Kd = SPID_D/10.0;	
+	{	
 		if(All_flag.beep_flag)
 		{
 			BEEP=1;
@@ -695,65 +613,14 @@ void float_task(void *p_arg)
 				All_flag.beep_flag = 0;				
 			}
 		}
-		if(All_flag.yuyin_flag!=YinLiang)
-		{
-			yinling(YinLiang);		
-		}
-		All_flag.yuyin_flag = YinLiang;
 		num++;
 		if(num==200)
 		{
 			LED1 = ~LED1;//运行灯
 			TongXunDeng=~TongXunDeng;//触摸屏通讯指示灯
-			LiDian_send();//获取电池数据
 			num=0;
 		}
-		QianFangZhuang = QfangZ;//前防撞
-		HouFangZhuang = HfangZ;//后防撞
-		if(QfangZ ==1)	All_flag.speek1_flag=0;
-		if(HfangZ ==1)	All_flag.speek3_flag=0;	
 		
-		if(JieMianHao==5)
-		{
-			//动态刷新手动自动和时间按钮的显示或隐藏
-			//正向、反向、左移正向、左移反向、右移正向、右移反向
-			if(PLC_Data[4]==0||PLC_Data[4]==3||PLC_Data[4]==4||PLC_Data[4]==5||PLC_Data[4]==7||PLC_Data[4]==8
-				||PLC_Data[4]==10||PLC_Data[4]==11||PLC_Data[4]==12||PLC_Data[4]==13)
-			{
-				if(PLC_Data[4]==10||PLC_Data[4]==11||PLC_Data[4]==12||PLC_Data[4]==13)
-				{
-					PLC_OutPut[23]=1;
-				}
-				else
-				{
-					PLC_OutPut[23]=0;
-				}
-				PLC_OutPut[0]=1;//显示手动自动
-				if(PLC_Data[5]==0)//自动
-					PLC_OutPut[1]=1;//显示停留时间
-				else
-					PLC_OutPut[1]=0;//隐藏停留时间
-			}
-			else
-			{
-				PLC_OutPut[0]=0;//隐藏手动自动
-				PLC_OutPut[1]=0;//隐藏停留时间
-				PLC_OutPut[23]=0;//隐藏突变次数
-			}
-		}
-		if(receive_ok == 1)
-		{
-			data_Parameterreceive();
-			DMA_Cmd(DMA2_Stream1, ENABLE);
-		}		
-		if(lidian.MAh<1635)//满容量8179，小于满容量的40%报警
-		{
-			All_flag.speek2_flag=1;			
-		}
-		else
-		{
-			All_flag.speek2_flag=0;
-		}
 		delay(0,0,0,5); //延时5ms
 	}
 }
@@ -1529,114 +1396,10 @@ void Screen_task(void*p_arg)
 //自动执行路径或流程
 void Task5_task(void *p_arg)
 {	
-	u16 i,j,k;
 	p_arg = p_arg;
 
 	while(1)
 	{
-		if(All_flag.flag_szd == 0)
-		{
-			//执行路径
-			if(HmiTask==1)
-			{
-				////清空地标
-				dir=0;
-				keynumber=0;
-				All_flag.quxiaorenwu_flag = 0;
-				HmiStationSerialNum = 0;
-				//根据所选路径，执行相应动作
-				for(i=0;i<HmiStationNum;i++)
-				{
-					StationAction(i);
-				}
-			}
-			else
-				//执行流程
-				if(HmiTask == 2)
-				{
-					////清空地标
-					dir=0;
-					keynumber=0;
-					All_flag.quxiaorenwu_flag = 0;
-					HmiProcessSerialNum = 0;
-					for(i=0;i<HmiStepNum;i++)
-					{
-						HmiProcessSerialNum++;
-						switch(NowProcessInfor[i][1])
-						{
-							case 0://单次执行
-								//更新路径号
-								HmiRouteNum = NowProcessInfor[i][0];
-							  //获取路径包含站点数
-								GetRouteStationNum(HmiRouteNum);
-								//获取当前路径信息
-								GetRouteData(HmiRouteNum);
-
-								HmiStationSerialNum = 0;
-								//根据所选路径，执行相应动作
-								for(j=0;j<HmiStationNum;j++)
-								{
-									StationAction(j);
-								}
-								break;
-							case 1://顺序执行
-								for(k=NowProcessInfor[i][0];k<=NowProcessInfor[i][2];k++)
-								{
-									//更新路径号
-									HmiRouteNum = k;
-									//获取路径包含站点数
-									GetRouteStationNum(HmiRouteNum);
-									//获取当前路径信息
-									GetRouteData(HmiRouteNum);
-									
-									HmiStationSerialNum = 0;
-									//根据所选路径，执行相应动作
-									for(j=0;j<HmiStationNum;j++)
-									{
-										StationAction(j);
-									}
-								}
-								break;
-							case 2://倒序执行
-								for(k=NowProcessInfor[i][0];k>=NowProcessInfor[i][2];k--)
-								{
-									//更新路径号
-									HmiRouteNum = k;
-									//获取路径包含站点数
-									GetRouteStationNum(HmiRouteNum);
-									//获取当前路径信息
-									GetRouteData(HmiRouteNum);
-  
-									HmiStationSerialNum = 0;
- 									//根据所选路径，执行相应动作
-									for(j=0;j<HmiStationNum;j++)
-									{
-										StationAction(j);
-									}
-								}
-								break;
-							case 3://循环执行
-								//更新路径号
-								HmiRouteNum = NowProcessInfor[i][0];
-							  //获取路径包含站点数
-								GetRouteStationNum(HmiRouteNum);
-								//获取当前路径信息
-								GetRouteData(HmiRouteNum);
-								for(k=0;k<NowProcessInfor[i][2];k++)
-								{
-									HmiStationSerialNum = 0;
-									//根据所选路径，执行相应动作
-									for(j=0;j<HmiStationNum;j++)
-									{
-										StationAction(j);
-									}
-								}
-								break;
-							default:break;
-						}
-					}
-				}		
-		}
 		delay(0,0,0,5);
 	}
 }
@@ -1910,127 +1673,16 @@ void Control_task(void *p_arg)
 void WIFI_task(void *p_arg)
 {	
 	while(1)
-	{
-		if(All_flag.speek1_flag==1)
-		{
-			speek("前机械避障，请挪开障碍物!");
-			delay(0,0,5,0);			
-		}
-		if(All_flag.speek3_flag==1)
-		{
-			speek("后机械避障，请挪开障碍物!");
-			delay(0,0,5,0);			
-		}		
-		if(All_flag.speek_flag==1)
-		{
-			speek("前方有障碍！");
-			delay(0,0,3,0);			
-		}		
-		if(All_flag.speek2_flag==1)
-		{
-			speek("电池电量不足，请及时充电！");
-			delay(0,0,5,0);			
-		}	
+	{	
 		delay(0,0,0,5);
 	}
 	
 }
 //判断平移或旋转是否到位到位
-u8 onway=0;
 void DEMO_task(void *p_arg)
 {
-	u16 cidaohang_now = 0,cidaohang_last = 0;
 	while(1)
-	{
-		if(All_flag.flag_szd==0)
-		{
-			if(dir == 0)
-			{
-				cidaohang_now = QianCiDaoHangShuJu;
-				if((cidaohang_last != 0x0000)&&(cidaohang_now == 0x0000))
-				{
-					tubian_num++;
-				}
-				cidaohang_last = cidaohang_now;
-			}
-			else if(dir == 1)
-			{
-				cidaohang_now = HouCiDaoHangShuJu;
-				if((cidaohang_last != 0x0000)&&(cidaohang_now == 0x0000))
-				{
-					tubian_num++;
-				}
-				cidaohang_last = cidaohang_now;				
-			}
-			if(dir == 2)
-			{
-				cidaohang_now = QianCiDaoHangShuJu;
-				if((cidaohang_last != 0xffff)&&(cidaohang_now == 0xffff))
-				{
-					onway=1;
-				}
-				if(onway==1)
-				{
-					if((abs(front_cdh16.Distance<1)))
-					{
-						onway=0;
-						PingYiNum = 8;					
-					}					
-				}				
-				cidaohang_last = cidaohang_now;
-			}
-			else if(dir == 3)
-			{
-				cidaohang_now = QianCiDaoHangShuJu;
-				if((cidaohang_last != 0xffff)&&(cidaohang_now == 0xffff))
-				{
-					onway=1;
-				}
-				if(onway==1)
-				{
-					if((abs(front_cdh16.Distance<1)))
-					{
-						onway=0;
-						PingYiNum = 8;					
-					}					
-				}				
-				cidaohang_last = cidaohang_now;
-			}
-			else if(dir == 4)
-			{
-				cidaohang_now = QianCiDaoHangShuJu;
-				if(((cidaohang_last != 0xffff)||(cidaohang_last == 0xffff))&&(cidaohang_now == 0xffff))
-				{
-					onway=1;
-				}
-				if(onway==1)
-				{
-					if((abs(front_cdh16.Distance<4)))
-					{
-						onway=0;
-						XuanZhuanNUM++;					
-					}					
-				}				
-				cidaohang_last = cidaohang_now;
-			}
-			else if(dir == 5)
-			{
-				cidaohang_now = QianCiDaoHangShuJu;
-				if(((cidaohang_last != 0xffff)||(cidaohang_last == 0xffff))&&(cidaohang_now == 0xffff))
-				{
-					onway=1;
-				}
-				if(onway==1)
-				{
-					if((abs(front_cdh16.Distance<4)))
-					{
-						onway=0;
-						XuanZhuanNUM++;					
-					}					
-				}				
-				cidaohang_last = cidaohang_now;
-			}			
-		}			
+	{		
 		delay(0,0,0,5);   
 	}
 }
@@ -2039,23 +1691,7 @@ void DEMO_task(void *p_arg)
 void DEMO1_task(void *p_arg)
 {
 	while(1)
-	{
-		if(All_flag.startAsk && (All_flag.jiting_flag == 0) &&(All_flag.flag_tz == 0) )
-		{
-			if(HmiTask == 0)
-			{
-				JieMianHao = 21;
-				speek("请选择需要执行的任务！");
-				All_flag.startAsk = 0;					
-			}
-			else
-			{
-				start();
-				HmiTaskState = 5;
-				HmiShouZiDongYinCang = 1;//隐藏启动显示停止
-				All_flag.startAsk = 0;						
-			}					
-		}	
+	{	
 		delay(0,0,0,5);      
 	}
 }
@@ -2070,13 +1706,6 @@ void DEMO2_task(void *p_arg)
 		{
 			num=0;
 			IWDG_Feed();//喂狗
-		}
-		if(All_flag.stopAsk)
-		{
-			stop();
-			HmiTaskState = 3;
-			HmiShouZiDongYinCang = 0;//隐藏停止显示启动
-			All_flag.stopAsk = 0;
 		}
 		delay(0,0,0,5);      
 	}

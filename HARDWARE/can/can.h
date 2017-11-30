@@ -44,7 +44,19 @@ extern u16 cdh_16_qian,cdh_16_hou;
 #define UP 			 Input[8]//遥控的上
 #define DOWN 		 Input[9]//遥控的下
 
-
+typedef struct
+{
+	u8 DongZuo;
+	u8 SuDu;
+	u8 XingZou_OR_ShengJiang;
+	u8 ZhiXing_OR_XieXing;
+	u8 XiaJiang;
+	u8 JiTing;
+	u8 KuaiSu_OR_ManSu;
+	u8 QiSheng;
+	u8 YaoGan_Key;
+}KongZhi;
+extern KongZhi YaoKong;
 #endif
 
 

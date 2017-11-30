@@ -87,24 +87,7 @@ u8 CAN1_Mode_Init(u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 CanRxMsg RxMessage;
 void CAN1_RX0_IRQHandler(void)
 {
-	int i=0;
     CAN_Receive(CAN1, 0, &RxMessage);
-	if(RxMessage.StdId==12)
-	{
-		//继电器的默认状态接收
-		for(i=0;i<8;i++)
-		{
-			Input[i] = !(((RxMessage.Data[0]^0xff)>>i)&0x01);
-		}
-		for(i=0;i<4;i++)
-		{
-			Input[i+8] = !(((RxMessage.Data[1]^0xff)>>i)&0x01);
-		}
-		if(RxMessage.Data[2]==0x55)//继电器板复位时的处理
-		{
-			CAN1_Send_Msg(CAN1_Sebuf,4);
-		}		
-	}
 	if(RxMessage.StdId==0x13)
 	{
 		QianZuoLeiDa = RxMessage.Data[0];//前左
@@ -161,34 +144,7 @@ u8 CAN1_Receive_Msg(u8 *buf)
 
 void CanSend(void)			//自写CAN发送函数
 {
-//	u8 temp[2],i=0,j=0;
 	
-//	for(i=0;i<8;i++)
-//	{
-//		j = 0;
-//		if(OutPut[i]>0)
-//			j=1;
-//		temp[0]|=j<<i;
-//	}
-//	for(i=0;i<2;i++)
-//	{
-//		j = 0;
-//		if(OutPut[i+8]>0)
-//			j=1;
-//		temp[1]|=j<<i;
-//	}
-//	if(!((temp[0]==can_Sebuf[0])&&(temp[1]==can_Sebuf[1])))
-//	{
-//		can_Sebuf[0]=temp[0];
-//		can_Sebuf[1]=temp[1];
-//		CAN1_Send_Msg(can_Sebuf,3);
-//	}
-
-//		can_Sebuf[0]=0x01;
-//		can_Sebuf[1]=0x01;
-//		can_Sebuf[2]=0x55;
-//		can_Sebuf[3]=0x01;
-//		CAN1_Send_Msg(can_Sebuf,4);
 }
 
 
@@ -256,26 +212,25 @@ u8 CAN2_Mode_Init(u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 #endif
 	return 0;
 }   
-u16 cdh_16_qian=0xffff,cdh_16_hou=0xffff; 
+KongZhi YaoKong;
 #if CAN2_RX0_INT_ENABLE	//使能RX0中断
 //中断服务函数		
 CanRxMsg RxMessage;
 void CAN2_RX0_IRQHandler(void)
 {
     CAN_Receive(CAN2, 0, &RxMessage);
-	if(RxMessage.StdId==0x30)
+	if(RxMessage.StdId==0x01)
 	{
-		cdh_16_qian = (RxMessage.Data[0]<<8)|RxMessage.Data[1];
-		QianCiDaoHangShuJu = cdh_16_qian;	
-		front_cdh16 = FindSpace(cdh_16_qian,8,fencha_dir);
-		QianZhongDianPianCha = front_cdh16.Distance;
-	}
-	if(RxMessage.StdId==0x04)
-	{
-		cdh_16_hou = (RxMessage.Data[0]<<8)|RxMessage.Data[1];
-		HouCiDaoHangShuJu = cdh_16_hou;	
-		back_cdh16 = FindSpace(cdh_16_hou,8,fencha_dir);
-		HouZhongDianPianCha = back_cdh16.Distance;
+		YaoKong.DongZuo = RxMessage.Data[0];
+		YaoKong.SuDu = RxMessage.Data[1];
+		YaoKong.XingZou_OR_ShengJiang = RxMessage.Data[2]&0x01;
+		YaoKong.ZhiXing_OR_XieXing = RxMessage.Data[2]&0x02;
+		YaoKong.XiaJiang = RxMessage.Data[2]&0x04;
+		YaoKong.JiTing = RxMessage.Data[2]&0x08;
+		YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
+		YaoKong.QiSheng = RxMessage.Data[2]&0x20;
+		YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
+		LED2 = ~LED2;
 	}
 }
 #endif
