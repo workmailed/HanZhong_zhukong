@@ -160,7 +160,8 @@ int main(void)
 	
 	delay_init(168);  	//时钟初始化
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//中断分组配置
-	LED_Init();         //LED初始化
+
+	LED_Init();         //LED初始化	
 	DMA_adc1_Init();
 	DMA_Uart4_Init();
 	DMA_Uart2_Init();
@@ -176,10 +177,16 @@ int main(void)
 	CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN2初始化普通模式,波特率500Kbps
 	IWDG_Init(4,500);
+	TLC5620_Init();
+	//发送继电器板同步信息
+	CAN2_Send_Msg(can_Sebuf,4);
+	can_Sebuf[3]=0;
 	
-	can_Sebuf[2]=0x55;//发送继电器板同步信息
-	CanSend();	
-	can_Sebuf[2]=0;
+	send3_buf[0] = 1;//给遥控器发送复位信号
+	send3_buf[1] = 0;
+	send3_buf[2] = 1;
+	Uart3_Start_DMA_Tx(3);
+		
 	
 	OSInit(&err);		//初始化UCOSIII
 	OS_CRITICAL_ENTER();//进入临界区
@@ -1407,15 +1414,8 @@ void Task5_task(void *p_arg)
 //手自动模式避障处理
 void Control_task(void *p_arg)
 {
-	u8 num=0;
 	while(1)
 	{
-		num++;
-		if(num==100)
-		{
-			LED3 = ~LED3;//运行灯
-			num=0;
-		}
 		ld_juli = QianHouJuLi;//前后倒车雷达距离设置
 		Manual_juli = QianHouJuLi;
 		if(All_flag.flag_szd==0)//自动
@@ -1692,7 +1692,8 @@ void DEMO1_task(void *p_arg)
 {
 	while(1)
 	{	
-		delay(0,0,0,5);      
+		TLC5620_OUTnum(1,125);
+		delay(0,0,0,200);      
 	}
 }
 //停止

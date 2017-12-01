@@ -230,15 +230,19 @@ void USART3_IRQHandler(void)
 		rece3_index = USART3->DR; //Çå³ýIDLE±êÖ¾
 		rece3_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream1); 
 		DMA1_Stream1->NDTR = UART3_RX_LEN;
-		if((rece3_buf[0] == 0x7E)&&(rece3_buf[127] == 0x0D))
-		{
-			lidian.voltage = (HexToChar(rece3_buf[101])<<12)|(HexToChar(rece3_buf[102])<<8)|(HexToChar(rece3_buf[103])<<4)|(HexToChar(rece3_buf[104]));
-			lidian.MAh 	= (HexToChar(rece3_buf[105])<<12)|(HexToChar(rece3_buf[106])<<8)|(HexToChar(rece3_buf[107])<<4)|(HexToChar(rece3_buf[108]));
-			lidian.Current = (HexToChar(rece3_buf[97])<<12)|(HexToChar(rece3_buf[98])<<8)|(HexToChar(rece3_buf[99])<<4)|(HexToChar(rece3_buf[100]));
-			DianChiDianLiang = lidian.MAh;
-			DianChiDianLiu 	= lidian.Current;
-			
-		}		
+		
+		YaoKong.DongZuo = rece3_buf[0];
+		YaoKong.SuDu = rece3_buf[1];
+		YaoKong.XingZou_OR_ShengJiang = rece3_buf[2]&0x01;
+		YaoKong.ZhiXing_OR_XieXing = rece3_buf[2]&0x02;
+		YaoKong.XiaJiang = rece3_buf[2]&0x04;
+		YaoKong.JiTing = rece3_buf[2]&0x08;
+		YaoKong.KuaiSu_OR_ManSu = rece3_buf[2]&0x10;
+		YaoKong.QiSheng = rece3_buf[2]&0x20;
+		YaoKong.YaoGan_Key = rece3_buf[2]&0x40;
+		
+		FangXiang = YaoKong.XingZou_OR_ShengJiang                                                                                                                                                ;
+		
 		DMA_Cmd(DMA1_Stream1, ENABLE);
 	}
 #if SYSTEM_SUPPORT_OS 	

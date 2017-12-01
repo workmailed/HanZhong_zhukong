@@ -103,7 +103,7 @@ void TLC5620_OUT(u8 CHn,double date)
 				DACLK =0;
 				delay_us(2);
 		}	
-		datt=(u8)(date*255/(3.3*2.0*100));//基准电压为3.3V不放大增益
+		datt=(u8)(date*255/(3.27*2.0));//基准电压为3.3V不放大增益
 		for(i=0;i<8;i++)
 		{
 				dat=datt&0x80;//按位送数据

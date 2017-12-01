@@ -60,7 +60,7 @@
 #define YuYinKaiGuan PLC_OutPut[11]
 #define TongXunDeng PLC_OutPut[7]
 
-
+#define FangXiang PDout(4)
 
 void LED_Init(void);//≥ı ºªØ	
 

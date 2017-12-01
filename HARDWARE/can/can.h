@@ -47,7 +47,7 @@ extern u16 cdh_16_qian,cdh_16_hou;
 typedef struct
 {
 	u8 DongZuo;
-	u8 SuDu;
+	u16 SuDu;
 	u8 XingZou_OR_ShengJiang;
 	u8 ZhiXing_OR_XieXing;
 	u8 XiaJiang;
@@ -55,6 +55,7 @@ typedef struct
 	u8 KuaiSu_OR_ManSu;
 	u8 QiSheng;
 	u8 YaoGan_Key;
+	u8 YaoKong_OR_KongZhiHe;
 }KongZhi;
 extern KongZhi YaoKong;
 #endif

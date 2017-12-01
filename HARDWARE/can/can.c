@@ -11,7 +11,7 @@
 //返回值:0,初始化OK;
 //    其他,初始化失败; 
 
-u8 can_Sebuf[4]={0x01,0x01,0x55,0x01};
+u8 can_Sebuf[4]={0x01,0x01,0x01,0x55};
 u8 can_Rebuf[2]={0xff,0xff};
 
 u8 OutPut[10]={1,1,1,1,1,1,1,1,1,1};//can输出对应于继电器板的十位寄存器
@@ -40,8 +40,8 @@ u8 CAN1_Mode_Init(u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
     GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化PA11,PA12
 	
 	  //引脚复用映射配置
-	  GPIO_PinAFConfig(GPIOA,GPIO_PinSource11,GPIO_AF_CAN1); //GPIOA11复用为CAN1
-	  GPIO_PinAFConfig(GPIOA,GPIO_PinSource12,GPIO_AF_CAN1); //GPIOA12复用为CAN1
+	GPIO_PinAFConfig(GPIOA,GPIO_PinSource11,GPIO_AF_CAN1); //GPIOA11复用为CAN1
+	GPIO_PinAFConfig(GPIOA,GPIO_PinSource12,GPIO_AF_CAN1); //GPIOA12复用为CAN1
 	  
   	//CAN单元设置
    	CAN_InitStructure.CAN_TTCM=DISABLE;	//非时间触发通信模式   
@@ -221,16 +221,59 @@ void CAN2_RX0_IRQHandler(void)
     CAN_Receive(CAN2, 0, &RxMessage);
 	if(RxMessage.StdId==0x01)
 	{
-		YaoKong.DongZuo = RxMessage.Data[0];
-		YaoKong.SuDu = RxMessage.Data[1];
-		YaoKong.XingZou_OR_ShengJiang = RxMessage.Data[2]&0x01;
-		YaoKong.ZhiXing_OR_XieXing = RxMessage.Data[2]&0x02;
-		YaoKong.XiaJiang = RxMessage.Data[2]&0x04;
-		YaoKong.JiTing = RxMessage.Data[2]&0x08;
-		YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
-		YaoKong.QiSheng = RxMessage.Data[2]&0x20;
-		YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
-		LED2 = ~LED2;
+		YaoKong.YaoKong_OR_KongZhiHe = RxMessage.Data[2]&0x80;		
+		if(YaoKong.YaoKong_OR_KongZhiHe != 0)
+		{
+			YaoKong.DongZuo = RxMessage.Data[0];
+			YaoKong.SuDu = RxMessage.Data[1];
+			YaoKong.XingZou_OR_ShengJiang = RxMessage.Data[2]&0x01;
+			YaoKong.ZhiXing_OR_XieXing = RxMessage.Data[2]&0x02;
+			YaoKong.XiaJiang = RxMessage.Data[2]&0x04;
+			YaoKong.JiTing = RxMessage.Data[2]&0x08;
+			YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
+			YaoKong.QiSheng = RxMessage.Data[2]&0x20;
+			YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
+			LED4 = ~LED4;			
+		}			
+	}
+	if(YaoKong.YaoKong_OR_KongZhiHe == 0)
+	{
+		send3_buf[0] = 1;//遥控器有效指示
+		send3_buf[1] = 1;
+		send3_buf[2] = 2;
+		Uart3_Start_DMA_Tx(3);		
+		if(RxMessage.StdId==0x02)
+		{			
+			if((RxMessage.Data[0]==0xff)&&(RxMessage.Data[1]==0xff)&&(RxMessage.Data[2]==0xff)&&(RxMessage.Data[3]==0xff))
+			{
+				can_Sebuf[0] = 0x01;
+				can_Sebuf[1] = 0x01;
+				can_Sebuf[2] = 0x01;
+				can_Sebuf[3] = 0x66;
+				CAN2_Send_Msg(can_Sebuf,4);
+				LED3 = ~LED3;
+			}
+			else
+			{
+				YaoKong.DongZuo = RxMessage.Data[0];
+				YaoKong.SuDu = RxMessage.Data[1];
+				YaoKong.XingZou_OR_ShengJiang = RxMessage.Data[2]&0x01;
+				YaoKong.ZhiXing_OR_XieXing = RxMessage.Data[2]&0x02;
+				YaoKong.XiaJiang = RxMessage.Data[2]&0x04;
+				YaoKong.JiTing = RxMessage.Data[2]&0x08;
+				YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
+				YaoKong.QiSheng = RxMessage.Data[2]&0x20;
+				YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
+				LED2 = ~LED2;							
+			}			
+		}
+	}		
+	else
+	{
+		send3_buf[0] = 1;//遥控器无效指示
+		send3_buf[1] = 2;
+		send3_buf[2] = 3;
+		Uart3_Start_DMA_Tx(3);
 	}
 }
 #endif
@@ -245,7 +288,7 @@ u8 CAN2_Send_Msg(u8* msg,u8 len)
   u8 mbox;
   u16 i=0;
   CanTxMsg TxMessage;
-  TxMessage.StdId=0x13;	 // 标准标识符为0
+  TxMessage.StdId=0x10;	 // 标准标识符为0
   TxMessage.ExtId=0x13;	 // 设置扩展标示符（29位）
   TxMessage.IDE=0;		  // 使用扩展标识符
   TxMessage.RTR=0;		  // 消息类型为数据帧，一帧8位
