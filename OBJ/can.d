@@ -84,3 +84,4 @@
 ..\obj\can.o: ..\CORE\core_cm4.h
 ..\obj\can.o: ..\HARDWARE\route\route.h
 ..\obj\can.o: ..\HARDWARE\read_PC\read.h
+..\obj\can.o: ..\HARDWARE\OLED\OLED_I2C.h

@@ -84,3 +84,4 @@
 ..\obj\dma.o: ..\CORE\core_cm4.h
 ..\obj\dma.o: ..\HARDWARE\route\route.h
 ..\obj\dma.o: ..\HARDWARE\read_PC\read.h
+..\obj\dma.o: ..\HARDWARE\OLED\OLED_I2C.h

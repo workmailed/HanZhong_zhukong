@@ -85,3 +85,4 @@
 ..\obj\iwdg.o: ..\CORE\core_cm4.h
 ..\obj\iwdg.o: ..\HARDWARE\route\route.h
 ..\obj\iwdg.o: ..\HARDWARE\read_PC\read.h
+..\obj\iwdg.o: ..\HARDWARE\OLED\OLED_I2C.h

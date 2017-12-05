@@ -84,3 +84,4 @@
 ..\obj\capcount9.o: ..\CORE\core_cm4.h
 ..\obj\capcount9.o: ..\HARDWARE\route\route.h
 ..\obj\capcount9.o: ..\HARDWARE\read_PC\read.h
+..\obj\capcount9.o: ..\HARDWARE\OLED\OLED_I2C.h

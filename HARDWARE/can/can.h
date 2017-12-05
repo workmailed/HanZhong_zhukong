@@ -56,6 +56,7 @@ typedef struct
 	u8 QiSheng;
 	u8 YaoGan_Key;
 	u8 YaoKong_OR_KongZhiHe;
+	u8 KaiGuanLiang;
 }KongZhi;
 extern KongZhi YaoKong;
 #endif

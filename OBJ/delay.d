@@ -85,3 +85,4 @@
 ..\obj\delay.o: ..\CORE\core_cm4.h
 ..\obj\delay.o: ..\HARDWARE\route\route.h
 ..\obj\delay.o: ..\HARDWARE\read_PC\read.h
+..\obj\delay.o: ..\HARDWARE\OLED\OLED_I2C.h

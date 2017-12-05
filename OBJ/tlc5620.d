@@ -84,3 +84,4 @@
 ..\obj\tlc5620.o: ..\CORE\core_cm4.h
 ..\obj\tlc5620.o: ..\HARDWARE\route\route.h
 ..\obj\tlc5620.o: ..\HARDWARE\read_PC\read.h
+..\obj\tlc5620.o: ..\HARDWARE\OLED\OLED_I2C.h

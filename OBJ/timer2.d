@@ -84,3 +84,4 @@
 ..\obj\timer2.o: ..\CORE\core_cm4.h
 ..\obj\timer2.o: ..\HARDWARE\route\route.h
 ..\obj\timer2.o: ..\HARDWARE\read_PC\read.h
+..\obj\timer2.o: ..\HARDWARE\OLED\OLED_I2C.h

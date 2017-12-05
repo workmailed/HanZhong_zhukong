@@ -84,3 +84,4 @@
 ..\obj\modbus_slave.o: ..\CORE\core_cm4.h
 ..\obj\modbus_slave.o: ..\HARDWARE\route\route.h
 ..\obj\modbus_slave.o: ..\HARDWARE\read_PC\read.h
+..\obj\modbus_slave.o: ..\HARDWARE\OLED\OLED_I2C.h

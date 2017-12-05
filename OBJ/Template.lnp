@@ -22,6 +22,7 @@
 "..\obj\route.o"
 "..\obj\iwdg.o"
 "..\obj\read.o"
+"..\obj\oled_i2c.o"
 "..\obj\startup_stm32f40_41xxx.o"
 "..\obj\misc.o"
 "..\obj\stm32f4xx_gpio.o"

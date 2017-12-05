@@ -233,7 +233,8 @@ void CAN2_RX0_IRQHandler(void)
 			YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
 			YaoKong.QiSheng = RxMessage.Data[2]&0x20;
 			YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
-			LED4 = ~LED4;			
+			YaoKong.KaiGuanLiang = RxMessage.Data[2];
+			LED4 = ~LED4;	
 		}			
 	}
 	if(YaoKong.YaoKong_OR_KongZhiHe == 0)
@@ -264,6 +265,7 @@ void CAN2_RX0_IRQHandler(void)
 				YaoKong.KuaiSu_OR_ManSu = RxMessage.Data[2]&0x10;
 				YaoKong.QiSheng = RxMessage.Data[2]&0x20;
 				YaoKong.YaoGan_Key = RxMessage.Data[2]&0x40;
+				YaoKong.KaiGuanLiang = RxMessage.Data[2];
 				LED2 = ~LED2;							
 			}			
 		}

@@ -84,3 +84,4 @@
 ..\obj\pid.o: ..\CORE\core_cm4.h
 ..\obj\pid.o: ..\HARDWARE\route\route.h
 ..\obj\pid.o: ..\HARDWARE\read_PC\read.h
+..\obj\pid.o: ..\HARDWARE\OLED\OLED_I2C.h

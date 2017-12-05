@@ -84,3 +84,4 @@
 ..\obj\pwm.o: ..\CORE\core_cm4.h
 ..\obj\pwm.o: ..\HARDWARE\route\route.h
 ..\obj\pwm.o: ..\HARDWARE\read_PC\read.h
+..\obj\pwm.o: ..\HARDWARE\OLED\OLED_I2C.h

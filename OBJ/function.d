@@ -84,3 +84,4 @@
 ..\obj\function.o: ..\CORE\core_cm4.h
 ..\obj\function.o: ..\HARDWARE\route\route.h
 ..\obj\function.o: ..\HARDWARE\read_PC\read.h
+..\obj\function.o: ..\HARDWARE\OLED\OLED_I2C.h

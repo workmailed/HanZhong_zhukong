@@ -165,15 +165,17 @@ int main(void)
 	DMA_adc1_Init();
 	DMA_Uart4_Init();
 	DMA_Uart2_Init();
-	DMA_Uart6_Init();
+//	DMA_Uart6_Init();
 	DMA_Uart3_Init();
 	ADC1_Configuration();
 	USART1_Configuration(9600);
 	USART4_Configuration(9600);
-	USART6_Configuration(115200);
+//	USART6_Configuration(115200);
 	USART2_Configuration(9600);
 	USART3_Configuration(9600);
-
+	
+	OLED_Init();
+	OLED_CLS();
 	CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN1初始化普通模式,波特率500Kbps
 	CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);//CAN2初始化普通模式,波特率500Kbps
 	IWDG_Init(4,500);
@@ -1682,8 +1684,19 @@ void WIFI_task(void *p_arg)
 void DEMO_task(void *p_arg)
 {
 	while(1)
-	{		
-		delay(0,0,0,5);   
+	{	
+		if(YaoKong.YaoKong_OR_KongZhiHe != 0)
+		{
+			OLED_Print(0,0,2,"%s","MianBanEnable! ");
+		}
+		if(YaoKong.YaoKong_OR_KongZhiHe == 0)
+		{
+			OLED_Print(0,0,2,"%s","YaoKongQiEnable!");
+		}
+		OLED_Print(0,2,2,"%s%d  ","DongZuo:",YaoKong.DongZuo);
+		OLED_Print(0,4,2,"%s%d  ","SuDu:",YaoKong.SuDu);
+		OLED_Print(0,6,2,"%s%x","KaiGuan:",YaoKong.KaiGuanLiang);		
+		delay(0,0,0,10);   
 	}
 }
 
@@ -1691,7 +1704,7 @@ void DEMO_task(void *p_arg)
 void DEMO1_task(void *p_arg)
 {
 	while(1)
-	{	
+	{			
 		TLC5620_OUTnum(1,125);
 		delay(0,0,0,200);      
 	}

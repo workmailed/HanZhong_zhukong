@@ -240,8 +240,8 @@ void USART3_IRQHandler(void)
 		YaoKong.KuaiSu_OR_ManSu = rece3_buf[2]&0x10;
 		YaoKong.QiSheng = rece3_buf[2]&0x20;
 		YaoKong.YaoGan_Key = rece3_buf[2]&0x40;
-		
-		FangXiang = YaoKong.XingZou_OR_ShengJiang                                                                                                                                                ;
+		YaoKong.KaiGuanLiang = rece3_buf[2];
+		FangXiang = ~FangXiang;                                                                                                                                             ;
 		
 		DMA_Cmd(DMA1_Stream1, ENABLE);
 	}

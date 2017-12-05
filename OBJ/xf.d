@@ -84,3 +84,4 @@
 ..\obj\xf.o: ..\CORE\core_cm4.h
 ..\obj\xf.o: ..\HARDWARE\route\route.h
 ..\obj\xf.o: ..\HARDWARE\read_PC\read.h
+..\obj\xf.o: ..\HARDWARE\OLED\OLED_I2C.h

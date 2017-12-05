@@ -52,7 +52,7 @@ void LED_Init(void)
 	PBout(0) = 1;PBout(3) = 1;PBout(4) = 1;PBout(5) = 1;PBout(6) = 1;
 	PBout(7) = 1;PBout(8) = 1;PBout(9) = 1;PBout(10) = 1;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5|GPIO_Pin_6 | GPIO_Pin_7;//将串口6改为OLED的IIC口
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//普通输出模式
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//推挽输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//100MHz
