@@ -238,11 +238,11 @@ void CAN2_RX0_IRQHandler(void)
 		}			
 	}
 	if(YaoKong.YaoKong_OR_KongZhiHe == 0)
-	{
+	{	
 		send3_buf[0] = 1;//遥控器有效指示
 		send3_buf[1] = 1;
 		send3_buf[2] = 2;
-		Uart3_Start_DMA_Tx(3);		
+		Uart3_Start_DMA_Tx(3);
 		if(RxMessage.StdId==0x02)
 		{			
 			if((RxMessage.Data[0]==0xff)&&(RxMessage.Data[1]==0xff)&&(RxMessage.Data[2]==0xff)&&(RxMessage.Data[3]==0xff))
@@ -269,13 +269,13 @@ void CAN2_RX0_IRQHandler(void)
 				LED2 = ~LED2;							
 			}			
 		}
-	}		
+	}
 	else
 	{
 		send3_buf[0] = 1;//遥控器无效指示
 		send3_buf[1] = 2;
 		send3_buf[2] = 3;
-		Uart3_Start_DMA_Tx(3);
+		Uart3_Start_DMA_Tx(3);	
 	}
 }
 #endif

@@ -231,6 +231,20 @@ void USART3_IRQHandler(void)
 		rece3_index = UART_RX_LEN - DMA_GetCurrDataCounter(DMA1_Stream1); 
 		DMA1_Stream1->NDTR = UART3_RX_LEN;
 		
+		if(YaoKong.YaoKong_OR_KongZhiHe == 0)
+		{
+			send3_buf[0] = 1;//遥控器有效指示
+			send3_buf[1] = 1;
+			send3_buf[2] = 2;
+			Uart3_Start_DMA_Tx(3);
+		}
+		else
+		{
+			send3_buf[0] = 1;//遥控器无效指示
+			send3_buf[1] = 2;
+			send3_buf[2] = 3;
+			Uart3_Start_DMA_Tx(3);				
+		}
 		YaoKong.DongZuo = rece3_buf[0];
 		YaoKong.SuDu = rece3_buf[1];
 		YaoKong.XingZou_OR_ShengJiang = rece3_buf[2]&0x01;
@@ -241,8 +255,8 @@ void USART3_IRQHandler(void)
 		YaoKong.QiSheng = rece3_buf[2]&0x20;
 		YaoKong.YaoGan_Key = rece3_buf[2]&0x40;
 		YaoKong.KaiGuanLiang = rece3_buf[2];
-		FangXiang = ~FangXiang;                                                                                                                                             ;
-		
+		FangXiang = ~FangXiang;	
+
 		DMA_Cmd(DMA1_Stream1, ENABLE);
 	}
 #if SYSTEM_SUPPORT_OS 	
